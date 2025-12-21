@@ -4,6 +4,7 @@ import com.greentrack.greentrack_api.dto.AuthDTO;
 import com.greentrack.greentrack_api.dto.OnCreate;
 import com.greentrack.greentrack_api.dto.UserDTO;
 import com.greentrack.greentrack_api.entity.UserEntity;
+import com.greentrack.greentrack_api.repository.UserRepository;
 import com.greentrack.greentrack_api.service.JwtService;
 import com.greentrack.greentrack_api.service.UserService;
 
@@ -28,14 +29,17 @@ public class AuthController {
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public AuthController (
+        UserRepository userRepository,
         UserService userService,
         JwtService jwtService,
         AuthenticationManager authenticationManager
     ) {
+        this.userRepository = userRepository;
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -48,7 +52,12 @@ public class AuthController {
             new UsernamePasswordAuthenticationToken(authDTO.getUsername(), authDTO.getPassword())
         );
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(authDTO.getUsername());
+            UserEntity user = userRepository.findByUsername(authDTO.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado a pesar de autenticarse"));
+            String token = jwtService.generateToken(
+                authDTO.getUsername(),
+                user.getRole().name()
+            );
             return ResponseEntity.ok(Map.of(
                 "accessToken", token
             ));

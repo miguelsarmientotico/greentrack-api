@@ -4,6 +4,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -16,18 +19,20 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JwtService.class);
 
     public static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
 
-    public String generateToken(String email) { 
+    public String generateToken(String username, String role) { 
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, email);
+        claims.put("role", role);
+        return createToken(claims, username);
     }
 
-    private String createToken(Map<String, Object> claims, String email) {
+    private String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
         .claims(claims)
-        .subject(email)
+        .subject(username)
         .issuedAt(new Date(System.currentTimeMillis()))
         .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
         .signWith(getSignKey(), Jwts.SIG.HS256)

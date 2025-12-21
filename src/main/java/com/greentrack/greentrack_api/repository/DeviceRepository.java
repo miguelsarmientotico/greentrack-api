@@ -30,4 +30,6 @@ public interface DeviceRepository extends JpaRepository<DeviceEntity, UUID> {
     );
     
     boolean existsByName(String name);
+
+    long countByDeviceStatus(DeviceStatusEnum status);
 }

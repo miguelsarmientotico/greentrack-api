@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers("/users/**").permitAll()
                 .requestMatchers("/devices/**").permitAll()
                 .requestMatchers("/loans/**").permitAll()
+                .requestMatchers("/dashboard/**").permitAll()
 
                 // All other endpoints require authentication
                 .requestMatchers("/error").permitAll() // <--- AGREGA ESTO
