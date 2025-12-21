@@ -14,17 +14,26 @@ import java.util.List;
 @Repository
 public interface LoanRepository extends JpaRepository<LoanEntity, UUID> {
 
-    Page<LoanEntity> findByUserEntity_Id(UUID userId, Pageable pageable);
+    // 1. CORREGIDO: De userEntity -> employeeId
+    // Usamos el campo UUID 'employeeId' que definimos en la entidad
+    Page<LoanEntity> findByEmployeeId(UUID employeeId, Pageable pageable);
 
-    Page<LoanEntity> findByDeviceEntity_Id(UUID deviceId, Pageable pageable);
+    // 2. CORREGIDO: De deviceEntity -> deviceId
+    // Usamos el campo UUID 'deviceId'
+    Page<LoanEntity> findByDeviceId(UUID deviceId, Pageable pageable);
 
+    // 3. CORRECTO (No cambia)
     Page<LoanEntity> findByLoanStatus(LoanStatusEnum status, Pageable pageable);
 
-    boolean existsByDeviceEntity_IdAndLoanStatus(UUID deviceId, LoanStatusEnum status);
+    // 4. CORREGIDO: deviceEntity -> deviceId
+    boolean existsByDeviceIdAndLoanStatus(UUID deviceId, LoanStatusEnum status);
 
-    long countByUserEntity_IdAndLoanStatus(UUID userId, LoanStatusEnum status);
+    // 5. CORREGIDO: userEntity -> employeeId
+    long countByEmployeeIdAndLoanStatus(UUID employeeId, LoanStatusEnum status);
 
+    // 6. CORRECTO (No cambia)
     Page<LoanEntity> findByIssuedAtBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
     
+    // 7. CORRECTO (No cambia)
     List<LoanEntity> findByLoanStatus(LoanStatusEnum status);
 }

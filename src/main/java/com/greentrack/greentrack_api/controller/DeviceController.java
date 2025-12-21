@@ -1,5 +1,8 @@
 package com.greentrack.greentrack_api.controller;
 
+import com.greentrack.greentrack_api.dto.OnCreate;
+import com.greentrack.greentrack_api.dto.PagedResponse;
+import com.greentrack.greentrack_api.dto.device.DeviceDTO;
 import com.greentrack.greentrack_api.entity.DeviceEntity;
 import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
 import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
@@ -10,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,15 +33,21 @@ public class DeviceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DeviceEntity>> getDevices(
+    public ResponseEntity<PagedResponse<DeviceEntity>> getDevices(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
         
-        Page<DeviceEntity> devices = deviceService.getAllDevices(page - 1, limit);
-        if (devices.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(devices.getContent());
+        Page<DeviceEntity> devicesPage = deviceService.getAllDevices(page - 1, limit);
+        PagedResponse<DeviceEntity> response = new PagedResponse<>(
+            devicesPage.getContent(),
+            devicesPage.getNumber() + 1,
+            devicesPage.getSize(),
+            devicesPage.getTotalElements(),
+            devicesPage.getTotalPages(),
+            devicesPage.isLast()
+        );
+
+        return ResponseEntity.ok(response);
     }
     
     // Endpoint específico para filtros múltiples
@@ -55,8 +65,10 @@ public class DeviceController {
     }
 
     @PostMapping
-    public ResponseEntity<DeviceEntity> createDevice(@RequestBody DeviceEntity device) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.createDevice(device));
+    public ResponseEntity<DeviceEntity> createDevice(@Validated(OnCreate.class) @RequestBody DeviceDTO deviceDTO) {
+        LOG.info("creando Device");
+        DeviceEntity newDevice = deviceService.createDevice(deviceDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newDevice);
     }
 
     @GetMapping("/{deviceId}")

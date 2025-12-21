@@ -1,12 +1,16 @@
 package com.greentrack.greentrack_api.service;
 
+import com.greentrack.greentrack_api.dto.loan.LoanDTO;
 import com.greentrack.greentrack_api.entity.*;
+import com.greentrack.greentrack_api.exception.InvalidInputException;
+import com.greentrack.greentrack_api.mapper.LoanMapper;
 import com.greentrack.greentrack_api.repository.DeviceRepository;
 import com.greentrack.greentrack_api.repository.LoanRepository;
 import com.greentrack.greentrack_api.repository.UserRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,11 +30,18 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
+    private final LoanMapper mapper;
 
-    public LoanService(LoanRepository loanRepository, DeviceRepository deviceRepository, UserRepository userRepository) {
+    public LoanService(
+        LoanRepository loanRepository,
+        DeviceRepository deviceRepository,
+        UserRepository userRepository,
+        LoanMapper mapper
+    ) {
         this.loanRepository = loanRepository;
         this.deviceRepository = deviceRepository;
         this.userRepository = userRepository;
+        this.mapper = mapper;
     }
 
     public Page<LoanEntity> getAllLoans(int page, int size) {
@@ -44,45 +55,34 @@ public class LoanService {
         if (employeeId != null) {
             // Truco: usamos Pageable unpaged para traer lista completa si es necesario, 
             // o podrías crear un método List<Loan> en el repo.
-            return loanRepository.findByUserEntity_Id(employeeId, PageRequest.of(0, 100)).getContent();
+            return loanRepository.findByEmployeeId(employeeId, PageRequest.of(0, 100)).getContent();
         }
         return loanRepository.findAll();
     }
 
     @Transactional
-    public LoanEntity createLoan(UUID userId, UUID deviceId) {
-        // 1. Validar que el dispositivo exista
-        DeviceEntity device = deviceRepository.findById(deviceId)
-        .orElseThrow(() -> new RuntimeException("Dispositivo no encontrado"));
+    public LoanEntity createLoan(LoanDTO loanDto) {
+        LoanEntity loanEntity = mapper.apiToEntity(loanDto);
+        DeviceEntity device = deviceRepository.findById(loanDto.getDeviceId())
+            .orElseThrow(() -> new RuntimeException("Dispositivo no encontrado"));
 
-        // 2. Validar que el usuario exista
-        UserEntity user = userRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        // 3. REGLA DE NEGOCIO: ¿El dispositivo ya está en uso?
-        boolean isBusy = loanRepository.existsByDeviceEntity_IdAndLoanStatus(deviceId, LoanStatusEnum.ACTIVO);
-        if (isBusy) {
-            throw new IllegalArgumentException("El dispositivo seleccionado ya se encuentra en un préstamo activo.");
-        }
-
-        // 4. REGLA DE NEGOCIO: Validar que el estado del device sea DISPONIBLE
         if (device.getDeviceStatus() != DeviceStatusEnum.DISPONIBLE) {
-            throw new IllegalArgumentException("El dispositivo no está marcado como DISPONIBLE en el inventario.");
+            throw new RuntimeException("El dispositivo no está disponible. Estado actual: " + device.getDeviceStatus());
         }
 
-        // 5. Crear el Préstamo
-        LoanEntity loan = new LoanEntity();
-        loan.setUserEntity(user);
-        loan.setDeviceEntity(device);
-        loan.setIssuedAt(LocalDateTime.now());
-        loan.setLoanStatus(LoanStatusEnum.ACTIVO);
+        UserEntity employee = userRepository.findById(loanDto.getEmployeeId())
+            .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
 
-        // 6. ACTUALIZAR EL ESTADO DEL DISPOSITIVO A "OCUPADO" (o ASIGNADO)
-        // Asumiremos que tienes un estado ASIGNADO o lo dejas como NO DISPONIBLE
-        device.setDeviceStatus(DeviceStatusEnum.PRESTADO); // Asegúrate de tener este ENUM, si no usa otro.
-        deviceRepository.save(device);
+        try {
+            loanEntity.setDevice(device);
+            loanEntity.setEmployee(employee);
+            device.setDeviceStatus(DeviceStatusEnum.PRESTADO);
+            deviceRepository.save(device); 
+            return loanRepository.save(loanEntity);
 
-        return loanRepository.save(loan);
+        } catch (DataIntegrityViolationException ex) {
+            throw new InvalidInputException("No se pudo crear el préstamo. Verifique que los datos sean correctos.");
+        }
     }
 
     @Transactional
@@ -101,7 +101,7 @@ public class LoanService {
         loan.setLoanStatus(LoanStatusEnum.DEVUELTO);
 
         // 4. LIBERAR EL DISPOSITIVO (Volver a DISPONIBLE)
-        DeviceEntity device = loan.getDeviceEntity();
+        DeviceEntity device = loan.getDevice();
         device.setDeviceStatus(DeviceStatusEnum.DISPONIBLE);
         deviceRepository.save(device);
 

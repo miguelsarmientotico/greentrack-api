@@ -2,7 +2,6 @@ package com.greentrack.greentrack_api.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,24 +13,42 @@ public class LoanEntity {
     @Column(name = "ID", updatable = false, nullable = false)
     private UUID id;
 
+    // --- RELACIONES (Para escribir y leer objetos) ---
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMPLOYEE_ID", referencedColumnName = "ID")
-    private UserEntity userEntity;
+    private UserEntity employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DEVICE_ID", referencedColumnName = "ID")
-    private DeviceEntity deviceEntity;
+    private DeviceEntity device;
 
+    // --- IDS READ-ONLY (Solo para leer IDs rápido) ---
+    @Column(name = "EMPLOYEE_ID", insertable = false, updatable = false)
+    private UUID employeeId;
+
+    @Column(name = "DEVICE_ID", insertable = false, updatable = false)
+    private UUID deviceId;
+
+    // --- DATOS ---
     @NotNull(message = "Loan issue date is required.")
-    @Column(name = "ISSUED_AT") // Corregí el posible typo en el nombre de la columna
+    @Column(name = "ISSUED_AT")
     private LocalDateTime issuedAt;
 
-    @Column(name = "RETURNED_AT") // Corregí el posible typo en el nombre de la columna
+    @Column(name = "RETURNED_AT")
     private LocalDateTime returnedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "LOAN_STATUS")
     private LoanStatusEnum loanStatus = LoanStatusEnum.ACTIVO;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.issuedAt == null) {
+            this.issuedAt = LocalDateTime.now();
+        }
+    }
+
+    // --- GETTERS Y SETTERS ---
 
     public UUID getId() {
         return id;
@@ -42,22 +59,34 @@ public class LoanEntity {
         return this;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
+    // 1. Corregido: El nombre del método coincide con la variable 'employee'
+    public UserEntity getEmployee() {
+        return employee;
     }
 
-    public LoanEntity setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    public LoanEntity setEmployee(UserEntity employee) {
+        this.employee = employee;
         return this;
     }
 
-    public DeviceEntity getDeviceEntity() {
-        return deviceEntity;
+    // 2. Corregido: El nombre del método coincide con la variable 'device'
+    public DeviceEntity getDevice() {
+        return device;
     }
 
-    public LoanEntity setDeviceEntity(DeviceEntity deviceEntity) {
-        this.deviceEntity = deviceEntity;
+    public LoanEntity setDevice(DeviceEntity device) {
+        this.device = device;
         return this;
+    }
+
+    // 3. AÑADIDO: Getter para employeeId (Sin Setter)
+    public UUID getEmployeeId() {
+        return employeeId;
+    }
+
+    // 4. AÑADIDO: Getter para deviceId (Sin Setter)
+    public UUID getDeviceId() {
+        return deviceId;
     }
 
     public LocalDateTime getIssuedAt() {
@@ -90,18 +119,12 @@ public class LoanEntity {
     @Override
     public String toString() {
         return "LoanEntity{"
-        + "id="
-        + id
-        + '\''
-        + ", issuedAt='"
-        + issuedAt
-        + '\''
-        + ", returnedAt='"
-        + returnedAt
-        + '\''
-        + ", loanStatus='"
-        + loanStatus
+        + "id=" + id
+        + ", employeeId=" + employeeId // Ahora es seguro imprimir esto sin romper lazy loading
+        + ", deviceId=" + deviceId     // Idem
+        + ", issuedAt=" + issuedAt
+        + ", returnedAt=" + returnedAt
+        + ", loanStatus=" + loanStatus
         + '}';
     }
 }
-

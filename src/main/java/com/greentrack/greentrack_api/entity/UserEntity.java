@@ -36,7 +36,7 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private RoleEnum role = RoleEnum.USER;
 
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<LoanEntity> loans;
 
     public UUID getId() {

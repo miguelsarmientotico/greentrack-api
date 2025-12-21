@@ -1,6 +1,11 @@
 package com.greentrack.greentrack_api.controller;
 
+import com.greentrack.greentrack_api.dto.OnCreate;
+import com.greentrack.greentrack_api.dto.PagedResponse;
+import com.greentrack.greentrack_api.dto.loan.LoanDTO;
+import com.greentrack.greentrack_api.dto.loan.LoanResponseDTO;
 import com.greentrack.greentrack_api.entity.LoanEntity;
+import com.greentrack.greentrack_api.mapper.LoanMapper;
 import com.greentrack.greentrack_api.service.LoanService;
 
 import org.slf4j.Logger;
@@ -9,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,21 +29,33 @@ public class LoanController {
     private static final Logger LOG = LoggerFactory.getLogger(LoanController.class);
 
     private final LoanService loanService;
+    private final LoanMapper mapper;
 
-    public LoanController(LoanService loanService) {
+    public LoanController(
+        LoanService loanService,
+        LoanMapper mapper
+    ) {
         this.loanService = loanService;
+        this.mapper = mapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<LoanEntity>> getLoans(
+    public ResponseEntity<PagedResponse<LoanResponseDTO>> getLoans(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
         
-        Page<LoanEntity> loans = loanService.getAllLoans(page - 1, limit);
-        if (loans.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(loans.getContent());
+        Page<LoanEntity> entitiesPage = loanService.getAllLoans(page - 1, limit);
+        Page<LoanResponseDTO> dtoPage = entitiesPage.map(mapper::entityToApiResponse);
+        PagedResponse<LoanResponseDTO> response = new PagedResponse<>(
+            dtoPage.getContent(),
+            dtoPage.getNumber() + 1,
+            dtoPage.getSize(),
+            dtoPage.getTotalElements(),
+            dtoPage.getTotalPages(),
+            dtoPage.isLast()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/filter")
@@ -55,14 +73,10 @@ public class LoanController {
 
     // Endpoint para CREAR un préstamo
     @PostMapping
-    public ResponseEntity<?> createLoan(@RequestBody CreateLoanRequest request) {
-        try {
-            LoanEntity loan = loanService.createLoan(request.employeeId(), request.deviceId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(loan);
-        } catch (IllegalArgumentException e) {
-            // Manejo de error si el dispositivo ya está ocupado (regla de negocio)
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<LoanResponseDTO> createLoan(@Validated(OnCreate.class) @RequestBody LoanDTO loanDTO) {
+        LoanEntity newLoan = loanService.createLoan(loanDTO);
+        LoanResponseDTO response = mapper.entityToApiResponse(newLoan);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // Endpoint específico para DEVOLVER (Check-in) un equipo

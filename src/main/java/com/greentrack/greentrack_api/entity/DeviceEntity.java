@@ -33,7 +33,7 @@ public class DeviceEntity {
     @Column(name = "DEVICE_STATUS")
     private DeviceStatusEnum deviceStatus = DeviceStatusEnum.DISPONIBLE;
 
-    @OneToMany(mappedBy = "deviceEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "device", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<LoanEntity> loans;
 
     public UUID getId() {
