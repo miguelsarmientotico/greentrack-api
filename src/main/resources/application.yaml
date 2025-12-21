@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: greentrack-api
+
+server.port: 8080
+server.servlet.context-path: /api/v1
+server.error.include-message: always
+
+# Strongly recommend to set this property to "none" in a production environment!
+spring.jpa.hibernate.ddl-auto: update
+
+spring.datasource:
+  url: jdbc:mysql://localhost:5001/greentrack-db
+  username: root
+  password: admin
+
+spring.datasource.hikari.initializationFailTimeout: 60000
+
+app:
+  security:
+    jwt:
+      secret-key: fasdfasdfasdfasd
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
+
+logging:
+  level:
+    root: INFO
+    com.greentrack: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security.authorization: TRACE
+    org.springframework.security.web.access.intercept: TRACE
+    org.springframework.security.authorization.method: TRACE
+
+---
+spring.config.activate.on-profile: docker
+
+server.port: 8080
+
+spring.datasource:
+  url: jdbc:mysql://mysql/review-db
+
