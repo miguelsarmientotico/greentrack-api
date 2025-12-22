@@ -2,7 +2,7 @@ package com.greentrack.greentrack_api.mapper;
 
 import java.util.List;
 
-import org.mapstruct.Builder; // <--- 1. Tienes que importar esto
+import org.mapstruct.Builder; 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

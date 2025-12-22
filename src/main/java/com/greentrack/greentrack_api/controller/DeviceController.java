@@ -6,6 +6,7 @@ import com.greentrack.greentrack_api.dto.device.DeviceDTO;
 import com.greentrack.greentrack_api.entity.DeviceEntity;
 import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
 import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
+import com.greentrack.greentrack_api.exception.NotFoundException;
 import com.greentrack.greentrack_api.service.DeviceService;
 
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class DeviceController {
         return ResponseEntity.ok(response);
     }
     
-    // Endpoint específico para filtros múltiples
+    
     @GetMapping("/filter")
     public ResponseEntity<List<DeviceEntity>> filterDevices(
             @RequestParam(required = false) DeviceTypeEnum type,
@@ -75,22 +76,19 @@ public class DeviceController {
     public ResponseEntity<DeviceEntity> getDeviceById(@PathVariable UUID deviceId) {
         return deviceService.getDeviceById(deviceId)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new NotFoundException("Equipo no encontrado"));
     }
 
     @PatchMapping("/{deviceId}")
     public ResponseEntity<DeviceEntity> updateDevice(@PathVariable UUID deviceId, @RequestBody DeviceEntity updates) {
-         try {
-            return ResponseEntity.ok(deviceService.updateDevice(deviceId, updates));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        DeviceEntity updatedDevice = deviceService.updateDevice(deviceId, updates);
+        return ResponseEntity.ok(updatedDevice);
     }
 
     @DeleteMapping("/{deviceId}")
     public ResponseEntity<Void> deleteDevice(@PathVariable UUID deviceId) {
         deviceService.deleteDevice(deviceId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
     
     @PostMapping("/bulk-delete")

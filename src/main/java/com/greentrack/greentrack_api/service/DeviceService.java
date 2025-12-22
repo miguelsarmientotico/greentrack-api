@@ -5,6 +5,7 @@ import com.greentrack.greentrack_api.entity.DeviceEntity;
 import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
 import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
 import com.greentrack.greentrack_api.exception.InvalidInputException;
+import com.greentrack.greentrack_api.exception.NotFoundException;
 import com.greentrack.greentrack_api.mapper.DeviceMapper;
 import com.greentrack.greentrack_api.repository.DeviceRepository;
 
@@ -42,15 +43,13 @@ public class DeviceService {
         return repository.findAll(PageRequest.of(page, size));
     }
 
-    // Lógica para el endpoint /filter
     public List<DeviceEntity> filterDevices(DeviceTypeEnum type, String brand, DeviceStatusEnum status) {
-        // Creamos un objeto "probe" (sonda/molde) con los datos que tenemos
+        
         DeviceEntity probe = new DeviceEntity();
         if (type != null) probe.setDeviceType(type);
         if (brand != null) probe.setBrand(brand);
         if (status != null) probe.setDeviceStatus(status);
-
-        // Configuramos cómo comparar (ignorando nulos y mayúsculas para strings)
+        
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnoreNullValues()
                 .withMatcher("brand", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
@@ -86,12 +85,14 @@ public class DeviceService {
             if (updates.getDeviceStatus() != null) device.setDeviceStatus(updates.getDeviceStatus());
             if (updates.getDeviceType() != null) device.setDeviceType(updates.getDeviceType());
             return repository.save(device);
-        }).orElseThrow(() -> new RuntimeException("Dispositivo no encontrado"));
+        }).orElseThrow(() -> new NotFoundException("Dispositivo no encontrado"));
     }
 
     @Transactional
     public void deleteDevice(UUID id) {
-        repository.deleteById(id);
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+        }
     }
 
     @Transactional

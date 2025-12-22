@@ -1,6 +1,6 @@
 package com.greentrack.greentrack_api.exception;
 
-import jakarta.servlet.http.HttpServletRequest; // <--- CAMBIO IMPORTANTE (Antes era reactive)
+import jakarta.servlet.http.HttpServletRequest; 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ class GlobalControllerExceptionHandler {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
-        // Log detallado
+        
         if (auth != null) {
             LOG.warn("⛔ ACCESO DENEGADO en [{}]. Usuario: '{}', Roles: {}, Mensaje: {}", 
                 request.getRequestURI(),
@@ -42,12 +42,12 @@ class GlobalControllerExceptionHandler {
                 .body("Acceso denegado: No tienes los permisos necesarios (" + ex.getMessage() + ")");
     }
 
-    // --- OTROS ERRORES ---
+    
 
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
     public @ResponseBody HttpErrorInfo handleBadRequestExceptions(
-            HttpServletRequest request, BadRequestException ex) { // <--- HttpServletRequest
+            HttpServletRequest request, BadRequestException ex) { 
 
         return createHttpErrorInfo(BAD_REQUEST, request, ex);
     }
@@ -68,11 +68,10 @@ class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }
 
-    // Método auxiliar corregido para Servlet estándar
     private HttpErrorInfo createHttpErrorInfo(
             HttpStatus httpStatus, HttpServletRequest request, Exception ex) {
 
-        // En MVC estándar se usa getRequestURI(), no getPath()
+        
         final String path = request.getRequestURI(); 
         final String message = ex.getMessage();
 

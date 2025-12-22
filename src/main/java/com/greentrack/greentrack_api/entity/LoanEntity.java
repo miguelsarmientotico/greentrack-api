@@ -13,7 +13,7 @@ public class LoanEntity {
     @Column(name = "ID", updatable = false, nullable = false)
     private UUID id;
 
-    // --- RELACIONES (Para escribir y leer objetos) ---
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMPLOYEE_ID", referencedColumnName = "ID")
     private UserEntity employee;
@@ -22,14 +22,14 @@ public class LoanEntity {
     @JoinColumn(name = "DEVICE_ID", referencedColumnName = "ID")
     private DeviceEntity device;
 
-    // --- IDS READ-ONLY (Solo para leer IDs rápido) ---
+    
     @Column(name = "EMPLOYEE_ID", insertable = false, updatable = false)
     private UUID employeeId;
 
     @Column(name = "DEVICE_ID", insertable = false, updatable = false)
     private UUID deviceId;
 
-    // --- DATOS ---
+    
     @NotNull(message = "Loan issue date is required.")
     @Column(name = "ISSUED_AT")
     private LocalDateTime issuedAt;
@@ -48,7 +48,7 @@ public class LoanEntity {
         }
     }
 
-    // --- GETTERS Y SETTERS ---
+    
 
     public UUID getId() {
         return id;
@@ -59,7 +59,7 @@ public class LoanEntity {
         return this;
     }
 
-    // 1. Corregido: El nombre del método coincide con la variable 'employee'
+    
     public UserEntity getEmployee() {
         return employee;
     }
@@ -69,7 +69,7 @@ public class LoanEntity {
         return this;
     }
 
-    // 2. Corregido: El nombre del método coincide con la variable 'device'
+    
     public DeviceEntity getDevice() {
         return device;
     }
@@ -79,12 +79,12 @@ public class LoanEntity {
         return this;
     }
 
-    // 3. AÑADIDO: Getter para employeeId (Sin Setter)
+    
     public UUID getEmployeeId() {
         return employeeId;
     }
 
-    // 4. AÑADIDO: Getter para deviceId (Sin Setter)
+    
     public UUID getDeviceId() {
         return deviceId;
     }
@@ -120,8 +120,8 @@ public class LoanEntity {
     public String toString() {
         return "LoanEntity{"
         + "id=" + id
-        + ", employeeId=" + employeeId // Ahora es seguro imprimir esto sin romper lazy loading
-        + ", deviceId=" + deviceId     // Idem
+        + ", employeeId=" + employeeId 
+        + ", deviceId=" + deviceId     
         + ", issuedAt=" + issuedAt
         + ", returnedAt=" + returnedAt
         + ", loanStatus=" + loanStatus

@@ -1,4 +1,4 @@
-package com.greentrack.greentrack_api.dto; // O dto.dashboard
+package com.greentrack.greentrack_api.dto; 
 
 import lombok.Builder;
 import lombok.Data;

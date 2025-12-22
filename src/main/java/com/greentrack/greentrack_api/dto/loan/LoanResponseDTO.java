@@ -1,4 +1,4 @@
-package com.greentrack.greentrack_api.dto.loan; // O el paquete que uses
+package com.greentrack.greentrack_api.dto.loan; 
 
 import com.greentrack.greentrack_api.entity.LoanStatusEnum;
 import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
@@ -21,8 +21,8 @@ public class LoanResponseDTO {
     @Data
     public static class EmployeeSummaryDTO {
         private UUID id;
-        private String username; // O username, lo que uses
-        private String fullName; // O username, lo que uses
+        private String username; 
+        private String fullName; 
         private String email;
     }
 

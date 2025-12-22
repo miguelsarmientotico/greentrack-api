@@ -9,7 +9,7 @@ import com.greentrack.greentrack_api.entity.UserEntity;
 import com.greentrack.greentrack_api.exception.BadRequestException;
 import com.greentrack.greentrack_api.exception.NotFoundException;
 import com.greentrack.greentrack_api.mapper.UserMapper;
-import com.greentrack.greentrack_api.service.UserService; // Asumimos que existe
+import com.greentrack.greentrack_api.service.UserService; 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +57,11 @@ public class UserController {
 
         PagedResponse<UserResponseDTO> response = new PagedResponse<>(
             userDTOs,
-            usersPage.getNumber() + 1,          // Página actual (empieza en 0)
-            usersPage.getSize(),            // Tamaño de página
-            usersPage.getTotalElements(),   // Total de elementos
-            usersPage.getTotalPages(),      // Total de páginas
-            usersPage.isLast()              // ¿Es la última?
+            usersPage.getNumber() + 1,
+            usersPage.getSize(),            
+            usersPage.getTotalElements(),   
+            usersPage.getTotalPages(),      
+            usersPage.isLast()              
         );
 
         return ResponseEntity.ok(response);

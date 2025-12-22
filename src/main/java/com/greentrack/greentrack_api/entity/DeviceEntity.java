@@ -16,11 +16,11 @@ public class DeviceEntity {
 
     @NotNull(message = "Device name is required.")
     @Basic(optional = false)
-    @Column(name = "NAME")
+    @Column(name = "NAME", unique = true)
     private String name;
 
     @NotNull(message = "Device type is required.")
-    @Enumerated(EnumType.STRING) // Guarda "LAPTOP" en la BD en vez de un número (0)
+    @Enumerated(EnumType.STRING) 
     @Column(name = "DEVICE_TYPE")
     private DeviceTypeEnum deviceType;
 
@@ -58,7 +58,7 @@ public class DeviceEntity {
         return deviceType;
     }
 
-    // Actualizado para usar el Enum
+    
     public DeviceEntity setDeviceType(DeviceTypeEnum deviceType) {
         this.deviceType = deviceType;
         return this;

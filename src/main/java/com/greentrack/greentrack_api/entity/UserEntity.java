@@ -16,7 +16,7 @@ public class UserEntity {
 
     @NotNull(message = "User name is required.")
     @Basic(optional = false)
-    @Column(name = "USERNAME")
+    @Column(name = "USERNAME", unique = true)
     private String username;
 
     @Column(name = "PASSWORD")
@@ -25,7 +25,7 @@ public class UserEntity {
     @Column(name = "FULL_NAME")
     private String fullName;
 
-    @Column(name = "EMAIL")
+    @Column(name = "EMAIL", unique = true)
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -61,7 +61,7 @@ public class UserEntity {
         return password;
     }
 
-    public UserEntity setPassword(String password) { // CORREGIDO nombre parámetro
+    public UserEntity setPassword(String password) { 
         this.password = password;
         return this;
     }
@@ -70,21 +70,19 @@ public class UserEntity {
         return fullName;
     }
 
-    public UserEntity setFullName(String fullName) { // CORREGIDO nombre parámetro
+    public UserEntity setFullName(String fullName) { 
         this.fullName = fullName;
         return this;
     }
 
     public String getEmail() {
-        return email; // CORREGIDO (antes devolvía username)
+        return email; 
     }
 
-    public UserEntity setEmail(String email) { // CORREGIDO nombre parámetro
-        this.email = email; // CORREGIDO asignación
+    public UserEntity setEmail(String email) { 
+        this.email = email; 
         return this;
     }
-
-    // --- MÉTODOS QUE FALTABAN ---
 
     public UserStatusEnum getUserStatus() {
         return userStatus;

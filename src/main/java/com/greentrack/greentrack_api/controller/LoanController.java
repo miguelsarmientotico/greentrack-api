@@ -71,7 +71,7 @@ public class LoanController {
         return ResponseEntity.ok(loans);
     }
 
-    // Endpoint para CREAR un préstamo
+    
     @PostMapping
     public ResponseEntity<LoanResponseDTO> createLoan(@Validated(OnCreate.class) @RequestBody LoanDTO loanDTO) {
         LoanEntity newLoan = loanService.createLoan(loanDTO);
@@ -79,12 +79,13 @@ public class LoanController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Endpoint específico para DEVOLVER (Check-in) un equipo
+    
     @PatchMapping("/{loanId}/return")
-    public ResponseEntity<LoanEntity> returnLoan(@PathVariable UUID loanId) {
+    public ResponseEntity<LoanResponseDTO> returnLoan(@PathVariable UUID loanId) {
         try {
             LoanEntity loan = loanService.returnLoan(loanId);
-            return ResponseEntity.ok(loan);
+            LoanResponseDTO response = mapper.entityToApiResponse(loan);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -113,6 +114,5 @@ public class LoanController {
         return ResponseEntity.badRequest().build();
     }
 
-    // DTO para la creación
     public record CreateLoanRequest(UUID employeeId, UUID deviceId) {}
 }

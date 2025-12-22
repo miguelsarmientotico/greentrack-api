@@ -5,6 +5,7 @@ import com.greentrack.greentrack_api.dto.device.DeviceDTO;
 import com.greentrack.greentrack_api.entity.DeviceEntity;
 import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
 import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
+import com.greentrack.greentrack_api.entity.LoanEntity;
 import com.greentrack.greentrack_api.entity.LoanStatusEnum;
 import com.greentrack.greentrack_api.exception.InvalidInputException;
 import com.greentrack.greentrack_api.mapper.DeviceMapper;
@@ -46,30 +47,37 @@ public class DashboardService {
     }
 
     public DashboardResponseDTO getDashboard() {
-        long totalDevices = deviceRepository.count();
-        long availableDevices = deviceRepository.countByDeviceStatus(DeviceStatusEnum.DISPONIBLE);
-        long borrowedDevices = deviceRepository.countByDeviceStatus(DeviceStatusEnum.PRESTADO);
+        List<DeviceEntity> allDevices = deviceRepository.findAll();
+        List<LoanEntity> allLoans = loanRepository.findAll();
+        long totalUsers = userRepository.count(); // Este lo puedes dejar así o hacer findAll().stream().count()
 
-        // 2. Obtener estadísticas de Préstamos
-        long totalLoans = loanRepository.count();
-        long activeLoans = loanRepository.countByLoanStatus(LoanStatusEnum.ACTIVO);
-        long returnedLoans = loanRepository.countByLoanStatus(LoanStatusEnum.DEVUELTO); // O countByReturnedAtIsNotNull()
+        long availableDevices = allDevices.stream()
+        .filter(device -> DeviceStatusEnum.DISPONIBLE.equals(device.getDeviceStatus()))
+        .count();
 
-        // 3. Obtener estadísticas de Usuarios
-        long totalUsers = userRepository.count();
+        long borrowedDevices = allDevices.stream()
+        .filter(device -> DeviceStatusEnum.PRESTADO.equals(device.getDeviceStatus()))
+        .count();
 
-        // 4. Construir y devolver la respuesta anidada
+        long activeLoans = allLoans.stream()
+        .filter(loan -> LoanStatusEnum.ACTIVO.equals(loan.getLoanStatus()))
+        .count();
+
+        long returnedLoans = allLoans.stream()
+        .filter(loan -> LoanStatusEnum.DEVUELTO.equals(loan.getLoanStatus()))
+        .count();
+
         return DashboardResponseDTO.builder()
         .users(DashboardResponseDTO.UserStats.builder()
             .total(totalUsers)
             .build())
         .devices(DashboardResponseDTO.DeviceStats.builder()
-            .total(totalDevices)
+            .total((long) allDevices.size()) // Size de la lista es el total
             .available(availableDevices)
             .borrowed(borrowedDevices)
             .build())
         .loans(DashboardResponseDTO.LoanStats.builder()
-            .total(totalLoans)
+            .total((long) allLoans.size())
             .active(activeLoans)
             .returned(returnedLoans)
             .build())

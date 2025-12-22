@@ -68,12 +68,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserEntity> register(@Validated(OnCreate.class) @RequestBody UserDTO userDTO) {
-        // Lógica: Guardar usuario con contraseña encriptada
-        // return ResponseEntity.status(HttpStatus.CREATED).body(userService.register(user));
-        //return ResponseEntity.status(HttpStatus.CREATED); // Mock
         return null;
     }
 
-    // DTO simple para el Login
     public record LoginRequest(String username, String password) {}
 }

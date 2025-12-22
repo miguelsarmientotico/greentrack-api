@@ -1,3 +1,12 @@
+springdoc:
+  api-docs:
+    path: /openapi/v3/api-docs
+  swagger-ui:
+    path: /openapi/swagger-ui.html
+    disable-swagger-default-url: true
+  packages-to-scan: com.greentrack.greentrack_api
+  paths-to-match: /**
+
 spring:
   application:
     name: greentrack-api

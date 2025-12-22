@@ -48,13 +48,13 @@ public class LoanService {
         return loanRepository.findAll(PageRequest.of(page, size));
     }
 
-    // Filtro simple para historial
+    
     public List<LoanEntity> filterLoans(UUID employeeId, LocalDate dateFrom, LocalDate dateTo) {
-        // Nota: Para simplificar, si viene ID de empleado filtramos por él.
-        // Una implementación más robusta usaría CriteriaBuilder o Specifications para rangos de fecha.
+        
+        
         if (employeeId != null) {
-            // Truco: usamos Pageable unpaged para traer lista completa si es necesario, 
-            // o podrías crear un método List<Loan> en el repo.
+            
+            
             return loanRepository.findByEmployeeId(employeeId, PageRequest.of(0, 100)).getContent();
         }
         return loanRepository.findAll();
@@ -87,20 +87,17 @@ public class LoanService {
 
     @Transactional
     public LoanEntity returnLoan(UUID loanId) {
-        // 1. Buscar el préstamo
+        
         LoanEntity loan = loanRepository.findById(loanId)
         .orElseThrow(() -> new RuntimeException("Préstamo no encontrado"));
-
-        // 2. Validar que no esté ya devuelto
+        
         if (loan.getLoanStatus() != LoanStatusEnum.ACTIVO) {
             throw new IllegalArgumentException("Este préstamo ya ha sido finalizado anteriormente.");
         }
-
-        // 3. Finalizar el préstamo
+        
         loan.setReturnedAt(LocalDateTime.now());
         loan.setLoanStatus(LoanStatusEnum.DEVUELTO);
-
-        // 4. LIBERAR EL DISPOSITIVO (Volver a DISPONIBLE)
+        
         DeviceEntity device = loan.getDevice();
         device.setDeviceStatus(DeviceStatusEnum.DISPONIBLE);
         deviceRepository.save(device);
