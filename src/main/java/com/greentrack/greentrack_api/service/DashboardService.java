@@ -49,7 +49,7 @@ public class DashboardService {
     public DashboardResponseDTO getDashboard() {
         List<DeviceEntity> allDevices = deviceRepository.findAll();
         List<LoanEntity> allLoans = loanRepository.findAll();
-        long totalUsers = userRepository.count(); // Este lo puedes dejar así o hacer findAll().stream().count()
+        long totalUsers = userRepository.count();
 
         long availableDevices = allDevices.stream()
         .filter(device -> DeviceStatusEnum.DISPONIBLE.equals(device.getDeviceStatus()))

@@ -6,6 +6,113 @@ springdoc:
     disable-swagger-default-url: true
   packages-to-scan: com.greentrack.greentrack_api
   paths-to-match: /**
+api:
+  auth:
+    tag:
+      description: "Autenticación y registro de usuarios (JWT)."
+    login:
+      summary: "Iniciar sesión"
+      description: "Verifica las credenciales del usuario y devuelve un token JWT de acceso."
+    register:
+      summary: "Registrar usuario"
+      description: "Crea una nueva cuenta de usuario en el sistema."
+  users:
+    tag:
+      description: "Administración de usuarios (empleados, admins) del sistema."
+    get-all:
+      summary: "Listar usuarios"
+      description: "Obtiene una lista paginada de usuarios, con opción de filtrado por nombre."
+    get-by-id:
+      summary: "Obtener usuario"
+      description: "Busca un usuario específico por su ID."
+    create:
+      summary: "Crear usuario"
+      description: "Registra un nuevo usuario en el sistema."
+    update:
+      summary: "Actualizar usuario"
+      description: "Actualiza la información de un usuario existente."
+    delete:
+      summary: "Eliminar usuario"
+      description: "Elimina permanentemente un usuario."
+    bulk-delete:
+      summary: "Eliminación masiva"
+      description: "Elimina múltiples usuarios recibiendo una lista de IDs."
+
+  devices:
+    tag:
+      description: "Operaciones relacionadas con la gestión de inventario de equipos."
+    get-devices:
+      summary: "Listar dispositivos"
+      description: "Obtiene una lista paginada de todos los dispositivos registrados."
+    filter-devices:
+      summary: "Filtrar dispositivos"
+      description: "Busca dispositivos por tipo, marca o estado."
+    create-device:
+      summary: "Crear dispositivo"
+      description: "Registra un nuevo dispositivo en el inventario."
+    get-device-by-id:
+      summary: "Obtener dispositivo"
+      description: "Busca un dispositivo específico por su ID único."
+    update-device:
+      summary: "Actualizar dispositivo"
+      description: "Actualiza parcialmente la información de un dispositivo existente."
+    delete-device:
+      summary: "Eliminar dispositivo"
+      description: "Elimina un dispositivo del sistema permanentemente."
+    bulk-delete:
+      summary: "Eliminación masiva"
+      description: "Elimina múltiples dispositivos recibiendo una lista de IDs."
+
+  loans:
+    tag:
+      description: "Gestión de préstamos y devoluciones de equipos a empleados."
+    get-loans:
+      summary: "Listar préstamos"
+      description: "Obtiene un historial paginado de todos los préstamos realizados."
+    filter-loans:
+      summary: "Filtrar préstamos"
+      description: "Busca préstamos por empleado o rango de fechas."
+    create-loan:
+      summary: "Registrar préstamo"
+      description: "Crea un nuevo registro de préstamo asignando un dispositivo a un empleado."
+    return-loan:
+      summary: "Registrar devolución"
+      description: "Marca un préstamo activo como devuelto y libera el dispositivo."
+    get-loan-by-id:
+      summary: "Obtener préstamo"
+      description: "Busca la información detallada de un préstamo por su ID."
+    delete-loan:
+      summary: "Eliminar préstamo"
+      description: "Elimina un registro de préstamo del sistema."
+    bulk-delete:
+      summary: "Eliminación masiva"
+      description: "Elimina múltiples registros de préstamos recibiendo una lista de IDs."
+
+  dashboard:
+    tag:
+      description: "Estadísticas generales y métricas del sistema."
+    get-summary:
+      summary: "Obtener resumen del tablero"
+      description: "Devuelve contadores de dispositivos, usuarios y préstamos para la vista principal."
+
+  responseCodes:
+    ok:
+      description: "Operación exitosa."
+    created:
+      description: "Recurso creado exitosamente."
+    badRequest:
+      description: "Petición inválida. Revise los datos de entrada."
+    notFound:
+      description: "El recurso solicitado no fue encontrado."
+    unprocessableEntity:
+      description: "Datos enviados no procesables (error de lógica o validación)."
+    noContent: 
+      description: "Operación exitosa, sin contenido en la respuesta."
+    forbidden:
+      description: "Acceso denegado. No tiene los permisos necesarios (Requiere ADMIN)."
+    unauthorized:
+      description: "Credenciales inválidas o token expirado/faltante."
+  
 
 spring:
   application:

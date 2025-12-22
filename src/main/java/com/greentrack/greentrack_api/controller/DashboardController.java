@@ -1,30 +1,22 @@
 package com.greentrack.greentrack_api.controller;
 
 import com.greentrack.greentrack_api.dto.DashboardResponseDTO;
-import com.greentrack.greentrack_api.dto.OnCreate;
-import com.greentrack.greentrack_api.dto.PagedResponse;
-import com.greentrack.greentrack_api.dto.device.DeviceDTO;
-import com.greentrack.greentrack_api.entity.DeviceEntity;
-import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
-import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
 import com.greentrack.greentrack_api.service.DashboardService;
-import com.greentrack.greentrack_api.service.DeviceService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/dashboard")
+@Tag(name = "Dashboard", description = "${api.dashboard.tag.description:Not Configured}")
 public class DashboardController {
 
     private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
@@ -35,7 +27,14 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "${api.dashboard.get-summary.summary:Not Configured}",
+        description = "${api.dashboard.get-summary.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description:Not Configured}"),
+        @ApiResponse(responseCode = "403", description = "${api.responseCodes.forbidden.description:Not Configured}")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public ResponseEntity<DashboardResponseDTO> getDashboard() {
         DashboardResponseDTO dashboards = dashboardService.getDashboard();

@@ -8,12 +8,18 @@ import com.greentrack.greentrack_api.entity.LoanEntity;
 import com.greentrack.greentrack_api.mapper.LoanMapper;
 import com.greentrack.greentrack_api.service.LoanService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +30,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/loans")
+@Tag(name = "Loans", description = "${api.loans.tag.description:Not Configured}")
 public class LoanController {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoanController.class);
@@ -39,6 +46,14 @@ public class LoanController {
         this.mapper = mapper;
     }
 
+    @Operation(
+        summary = "${api.loans.get-loans.summary:Not Configured}",
+        description = "${api.loans.get-loans.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description:Not Configured}"),
+        @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<PagedResponse<LoanResponseDTO>> getLoans(
             @RequestParam(defaultValue = "1") int page,
@@ -58,6 +73,14 @@ public class LoanController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "${api.loans.filter-loans.summary:Not Configured}",
+        description = "${api.loans.filter-loans.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description:Not Configured}"),
+        @ApiResponse(responseCode = "404", description = "${api.responseCodes.notFound.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/filter")
     public ResponseEntity<List<LoanEntity>> filterLoans(
             @RequestParam(required = false) UUID employeeId,
@@ -71,7 +94,15 @@ public class LoanController {
         return ResponseEntity.ok(loans);
     }
 
-    
+    @Operation(
+        summary = "${api.loans.create-loan.summary:Not Configured}",
+        description = "${api.loans.create-loan.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "${api.responseCodes.created.description:Not Configured}"),
+        @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description:Not Configured}"),
+        @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<LoanResponseDTO> createLoan(@Validated(OnCreate.class) @RequestBody LoanDTO loanDTO) {
         LoanEntity newLoan = loanService.createLoan(loanDTO);
@@ -79,7 +110,14 @@ public class LoanController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    
+    @Operation(
+        summary = "${api.loans.return-loan.summary:Not Configured}",
+        description = "${api.loans.return-loan.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description:Not Configured}"),
+        @ApiResponse(responseCode = "404", description = "${api.responseCodes.notFound.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{loanId}/return")
     public ResponseEntity<LoanResponseDTO> returnLoan(@PathVariable UUID loanId) {
         try {
@@ -91,6 +129,14 @@ public class LoanController {
         }
     }
 
+    @Operation(
+        summary = "${api.loans.get-loan-by-id.summary:Not Configured}",
+        description = "${api.loans.get-loan-by-id.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description:Not Configured}"),
+        @ApiResponse(responseCode = "404", description = "${api.responseCodes.notFound.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{loanId}")
     public ResponseEntity<LoanEntity> getLoanById(@PathVariable UUID loanId) {
         return loanService.getLoanById(loanId)
@@ -98,12 +144,28 @@ public class LoanController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    @Operation(
+        summary = "${api.loans.delete-loan.summary:Not Configured}",
+        description = "${api.loans.delete-loan.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "${api.responseCodes.noContent.description:Not Configured}"),
+        @ApiResponse(responseCode = "404", description = "${api.responseCodes.notFound.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{loanId}")
     public ResponseEntity<Void> deleteLoan(@PathVariable UUID loanId) {
         loanService.deleteLoan(loanId);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+        summary = "${api.loans.bulk-delete.summary:Not Configured}",
+        description = "${api.loans.bulk-delete.description:Not Configured}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description:Not Configured}"),
+        @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description:Not Configured}")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk-delete")
     public ResponseEntity<Void> deleteLoansBulk(@RequestBody Map<String, List<UUID>> payload) {
         List<UUID> ids = payload.get("ids");
@@ -113,6 +175,4 @@ public class LoanController {
         }
         return ResponseEntity.badRequest().build();
     }
-
-    public record CreateLoanRequest(UUID employeeId, UUID deviceId) {}
 }
