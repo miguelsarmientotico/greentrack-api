@@ -39,7 +39,7 @@ public class LoanEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "LOAN_STATUS")
-    private LoanStatusEnum loanStatus = LoanStatusEnum.ACTIVO;
+    private LoanStatusEnum status = LoanStatusEnum.ACTIVO;
 
     @PrePersist
     public void prePersist() {
@@ -47,8 +47,6 @@ public class LoanEntity {
             this.issuedAt = LocalDateTime.now();
         }
     }
-
-    
 
     public UUID getId() {
         return id;
@@ -107,12 +105,12 @@ public class LoanEntity {
         return this;
     }
 
-    public LoanStatusEnum getLoanStatus() {
-        return loanStatus;
+    public LoanStatusEnum getStatus() {
+        return status;
     }
 
-    public LoanEntity setLoanStatus(LoanStatusEnum loanStatus) {
-        this.loanStatus = loanStatus;
+    public LoanEntity setStatus(LoanStatusEnum status) {
+        this.status = status;
         return this;
     }
 
@@ -124,7 +122,7 @@ public class LoanEntity {
         + ", deviceId=" + deviceId     
         + ", issuedAt=" + issuedAt
         + ", returnedAt=" + returnedAt
-        + ", loanStatus=" + loanStatus
+        + ", status=" + status
         + '}';
     }
 }

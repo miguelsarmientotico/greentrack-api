@@ -25,5 +25,5 @@ public class LoanDTO {
     private LocalDateTime returnedAt;
 
     @Null(groups = OnCreate.class, message = "El estado se asigna automáticamente (ACTIVO).")
-    private LoanStatusEnum loanStatus;
+    private LoanStatusEnum status;
 }

@@ -1,5 +1,4 @@
-package com.greentrack.greentrack_api.config;
-
+package com.greentrack.greentrack_api.security;
 
 import java.util.List;
 
@@ -22,7 +21,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.greentrack.greentrack_api.filter.JwtAuthFilter;
+import com.greentrack.greentrack_api.security.jwt.JwtAuthFilter;
+
 
 @Configuration
 @EnableWebSecurity

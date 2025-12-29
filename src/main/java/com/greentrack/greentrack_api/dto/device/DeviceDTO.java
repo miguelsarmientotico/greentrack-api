@@ -19,12 +19,12 @@ public class DeviceDTO {
     private String name;
 
     @NotNull(groups = OnCreate.class, message = "El tipo de dispositivo es obligatorio")
-    private DeviceTypeEnum deviceType;
+    private DeviceTypeEnum type;
 
     @NotBlank(groups = OnCreate.class, message = "La marca es obligatoria")
     @Size(min = 1, groups = OnUpdate.class, message = "La marca no puede estar vacía")
     private String brand;
 
     @Null(groups = OnCreate.class, message = "El estado se asigna automáticamente")
-    private DeviceStatusEnum deviceStatus;
+    private DeviceStatusEnum status;
 }

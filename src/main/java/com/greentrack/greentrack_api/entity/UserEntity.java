@@ -30,7 +30,7 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "USER_STATUS")
-    private UserStatusEnum userStatus = UserStatusEnum.ACTIVO;
+    private UserStatusEnum status = UserStatusEnum.ACTIVO;
 
     @Column(name = "ROLE")
     @Enumerated(EnumType.STRING)
@@ -84,12 +84,12 @@ public class UserEntity {
         return this;
     }
 
-    public UserStatusEnum getUserStatus() {
-        return userStatus;
+    public UserStatusEnum getStatus() {
+        return status;
     }
 
-    public UserEntity setUserStatus(UserStatusEnum userStatus) {
-        this.userStatus = userStatus;
+    public UserEntity setStatus(UserStatusEnum status) {
+        this.status = status;
         return this;
     }
 

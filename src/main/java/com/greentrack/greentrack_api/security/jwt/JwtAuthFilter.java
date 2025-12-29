@@ -1,4 +1,4 @@
-package com.greentrack.greentrack_api.filter;
+package com.greentrack.greentrack_api.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,8 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.greentrack.greentrack_api.service.JwtService;
 
 import java.io.IOException;
 

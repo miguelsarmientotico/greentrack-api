@@ -1,5 +1,7 @@
-package com.greentrack.greentrack_api.dto;
+package com.greentrack.greentrack_api.dto.user;
 
+import com.greentrack.greentrack_api.dto.OnCreate;
+import com.greentrack.greentrack_api.dto.OnUpdate;
 import com.greentrack.greentrack_api.entity.RoleEnum;
 import com.greentrack.greentrack_api.entity.UserStatusEnum;
 
@@ -29,7 +31,7 @@ public class UserDTO {
     private String email;
 
     @Null(groups = OnCreate.class, message = "El estado se asigna automáticamente, no lo envíe")
-    private UserStatusEnum userStatus;
+    private UserStatusEnum status;
 
     @NotNull(groups = OnCreate.class, message = "El rol es obligatorio")
     private RoleEnum role;

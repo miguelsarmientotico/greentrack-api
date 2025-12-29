@@ -1,36 +1,33 @@
 package com.greentrack.greentrack_api.service;
 
-import com.greentrack.greentrack_api.dto.UserDTO;
-import com.greentrack.greentrack_api.dto.UserResponseDTO;
+import com.greentrack.greentrack_api.dto.user.UserDTO;
+import com.greentrack.greentrack_api.dto.user.UserFilterDTO;
+import com.greentrack.greentrack_api.dto.user.UserResponseDTO;
 import com.greentrack.greentrack_api.entity.UserEntity;
+import com.greentrack.greentrack_api.exception.BadRequestException;
 import com.greentrack.greentrack_api.exception.InvalidInputException;
 import com.greentrack.greentrack_api.exception.NotFoundException;
 import com.greentrack.greentrack_api.mapper.UserMapper;
 import com.greentrack.greentrack_api.repository.UserRepository;
+import com.greentrack.greentrack_api.repository.specifications.UserSpecifications;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
@@ -48,59 +45,67 @@ public class UserService implements UserDetailsService {
         this.encoder = encoder;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = repository.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found..."));
+    private static final List<String> CAMPOS_VALIDOS = List.of("id", "username", "fullName", "email", "status", "role");
 
-        return new User(
-            user.getUsername(),
-            user.getPassword(),
-            Collections.singletonList(user.getRole()) 
-        );
-    }
-
-    public Page<UserEntity> getAllUsers(int page, int size, String fullNameFilter) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        if (fullNameFilter != null && !fullNameFilter.isBlank()) {
-            return repository.searchUsers(fullNameFilter, pageable);
+    @Transactional(readOnly = true)
+    public Page<UserEntity> searchUsersAdvanced(UserFilterDTO filter, Pageable pageable) {
+        if (pageable.getSort().isSorted()) {
+            for (Sort.Order order : pageable.getSort()) {
+                if (!CAMPOS_VALIDOS.contains(order.getProperty())) {
+                    throw new InvalidInputException("Campo de ordenamiento no válido: " + order.getProperty());
+                }
+            }
         }
-        return repository.findAll(pageable);
+        Specification<UserEntity> spec = UserSpecifications.getUsers(filter);
+        return repository.findAll(spec, pageable);
     }
 
-    public Optional<UserResponseDTO> getUserById(UUID id) {
-        return repository.findById(id).map(mapper::entityToApiResponse);
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserById(UUID id) {
+        return repository.findById(id)
+        .map(mapper::entityToApiResponse)
+        .orElseThrow(() -> {
+            LOG.warn("Intento de acceso a usuario inexistente ID: {}", id);
+            return new NotFoundException("No user found for userId: " + id);
+        });
     }
 
     @Transactional
     public UserResponseDTO createUser(UserDTO userDTO) {
+        LOG.info("Intentando registrar nuevo usuario: {}", userDTO.getUsername());
         if (repository.existsByUsername(userDTO.getUsername())) {
+            LOG.warn("Registro fallido: Username '{}' ya existe.", userDTO.getUsername());
             throw new InvalidInputException("El nombre de usuario ya existe.");
         }
         if (repository.existsByEmail(userDTO.getEmail())) {
+            LOG.warn("Registro fallido: Email '{}' ya ocupado.", userDTO.getEmail());
             throw new InvalidInputException("El email ya está registrado.");
         }
         UserEntity userEntity = mapper.apiToEntity(userDTO);
-        LOG.info("user creado tiene userStatus: {}", userEntity.getUserStatus());
         userEntity.setPassword(encoder.encode(userEntity.getPassword())); 
-    
         try {
             UserEntity savedEntity = repository.save(userEntity);
+            LOG.info(
+                "✅ Usuario creado exitosamente ID: {} | Rol: {} | Status: {}", 
+                savedEntity.getId(),
+                savedEntity.getRole(),
+                savedEntity.getStatus()
+            );
             return mapper.entityToApiResponse(savedEntity);
         } catch (DataIntegrityViolationException ex) {
-            throw new InvalidInputException(
-                "Could not create user."
-            );
+            LOG.error("Error crítico de DB al crear usuario: {}", ex.getMessage());
+            throw new InvalidInputException("Could not create user. Integrity violation.");
         }
     }
 
     @Transactional
     public UserResponseDTO updateUser(UUID id, UserDTO userUpdates) {
+        LOG.info("Iniciando actualización para usuario ID: {}", id);
         UserEntity existingUser = repository.findById(id)
-            .orElseThrow(() -> new NotFoundException("No user found for userId: " + id));
+        .orElseThrow(() -> new NotFoundException("No user found for userId: " + id));
         if (userUpdates.getEmail() != null && !userUpdates.getEmail().equals(existingUser.getEmail())) {
             if (repository.existsByEmail(userUpdates.getEmail())) {
+                LOG.warn("Actualización fallida: Email '{}' ya pertenece a otro usuario.", userUpdates.getEmail());
                 throw new InvalidInputException("Email ya registrado");
             }
         }
@@ -113,8 +118,8 @@ public class UserService implements UserDetailsService {
         if (userUpdates.getRole() != null) {
             existingUser.setRole(userUpdates.getRole());
         }
-        if (userUpdates.getUserStatus() != null) {
-            existingUser.setUserStatus(userUpdates.getUserStatus());
+        if (userUpdates.getStatus() != null) {
+            existingUser.setStatus(userUpdates.getStatus());
         }
         if (userUpdates.getPassword() != null && !userUpdates.getPassword().isBlank()) {
             existingUser.setPassword(encoder.encode(userUpdates.getPassword()));
@@ -125,11 +130,20 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void deleteUser(UUID id) {
+        LOG.warn("Solicitud de eliminación de usuario ID: {}", id);
         repository.deleteById(id);
+        LOG.info("Usuario eliminado correctamente ID: {}", id);
     }
 
     @Transactional
     public void deleteUsersBulk(List<UUID> ids) {
+        if (ids == null) {
+            throw new BadRequestException("El campo 'ids' es requerido");
+        }
+        if (ids.isEmpty()) {
+            throw new BadRequestException("La lista de IDs no puede estar vacía");
+        }
+        LOG.info("Eliminación masiva solicitada para {} usuarios.", ids.size());
         repository.deleteAllById(ids);
     }
 }

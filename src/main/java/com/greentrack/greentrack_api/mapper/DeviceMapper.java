@@ -18,7 +18,7 @@ public interface DeviceMapper {
     DeviceDTO entityToApi(DeviceEntity entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "deviceStatus", ignore = true)
+    @Mapping(target = "status", ignore = true)
     DeviceEntity apiToEntity(DeviceDTO api);
 
     List<DeviceDTO> entityListToApiList(List<DeviceEntity> entity);

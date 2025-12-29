@@ -22,7 +22,7 @@ public class DeviceEntity {
     @NotNull(message = "Device type is required.")
     @Enumerated(EnumType.STRING) 
     @Column(name = "DEVICE_TYPE")
-    private DeviceTypeEnum deviceType;
+    private DeviceTypeEnum type;
 
     @NotNull(message = "Device brand is required.")
     @Basic(optional = false)
@@ -31,7 +31,7 @@ public class DeviceEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "DEVICE_STATUS")
-    private DeviceStatusEnum deviceStatus = DeviceStatusEnum.DISPONIBLE;
+    private DeviceStatusEnum status = DeviceStatusEnum.DISPONIBLE;
 
     @OneToMany(mappedBy = "device", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<LoanEntity> loans;
@@ -54,13 +54,13 @@ public class DeviceEntity {
         return this;
     }
 
-    public DeviceTypeEnum getDeviceType() {
-        return deviceType;
+    public DeviceTypeEnum getType() {
+        return type;
     }
 
     
-    public DeviceEntity setDeviceType(DeviceTypeEnum deviceType) {
-        this.deviceType = deviceType;
+    public DeviceEntity setType(DeviceTypeEnum type) {
+        this.type = type;
         return this;
     }
 
@@ -73,12 +73,12 @@ public class DeviceEntity {
         return this;
     }
 
-    public DeviceStatusEnum getDeviceStatus() {
-        return deviceStatus;
+    public DeviceStatusEnum getStatus() {
+        return status;
     }
 
-    public DeviceEntity setDeviceStatus(DeviceStatusEnum deviceStatus) {
-        this.deviceStatus = deviceStatus;
+    public DeviceEntity setStatus(DeviceStatusEnum status) {
+        this.status = status;
         return this;
     }
 
@@ -90,14 +90,14 @@ public class DeviceEntity {
         + ", name='"
         + name
         + '\''
-        + ", deviceType='"
-        + deviceType
+        + ", type='"
+        + type
         + '\''
         + ", brand='"
         + brand
         + '\''
-        + ", deviceStatus='"
-        + deviceStatus
+        + ", status='"
+        + status
         + '}';
     }
 }

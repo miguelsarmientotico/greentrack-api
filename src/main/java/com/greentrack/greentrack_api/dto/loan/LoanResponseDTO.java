@@ -14,7 +14,7 @@ public class LoanResponseDTO {
     private UUID id;
     private LocalDateTime issuedAt;
     private LocalDateTime returnedAt;
-    private LoanStatusEnum loanStatus;
+    private LoanStatusEnum status;
     private EmployeeSummaryDTO employee;
     private DeviceSummaryDTO device;
 
@@ -31,6 +31,6 @@ public class LoanResponseDTO {
         private UUID id;
         private String name;
         private String brand;
-        private DeviceTypeEnum deviceType;
+        private DeviceTypeEnum type;
     }
 }

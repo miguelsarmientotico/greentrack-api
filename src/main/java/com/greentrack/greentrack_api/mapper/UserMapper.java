@@ -6,8 +6,8 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.greentrack.greentrack_api.dto.UserDTO;
-import com.greentrack.greentrack_api.dto.UserResponseDTO;
+import com.greentrack.greentrack_api.dto.user.UserDTO;
+import com.greentrack.greentrack_api.dto.user.UserResponseDTO;
 import com.greentrack.greentrack_api.entity.UserEntity;
 
 @Mapper(
@@ -20,7 +20,7 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "loans", ignore = true)
-    @Mapping(target = "userStatus", ignore = true)
+    @Mapping(target = "status", ignore = true)
     UserEntity apiToEntity(UserDTO api);
 
     List<UserDTO> entityListToApiList(List<UserEntity> entity);

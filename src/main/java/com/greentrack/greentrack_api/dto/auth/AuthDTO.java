@@ -1,9 +1,7 @@
-package com.greentrack.greentrack_api.dto;
+package com.greentrack.greentrack_api.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class AuthDTO {

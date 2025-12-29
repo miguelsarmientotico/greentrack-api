@@ -23,7 +23,7 @@ public interface LoanMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "issuedAt", ignore = true)
     @Mapping(target = "returnedAt", ignore = true)
-    @Mapping(target = "loanStatus", ignore = true)
+    @Mapping(target = "status", ignore = true)
     @Mapping(target = "employee", ignore = true)
     @Mapping(target = "device", ignore = true)
     @Mapping(target = "employeeId", ignore = true)

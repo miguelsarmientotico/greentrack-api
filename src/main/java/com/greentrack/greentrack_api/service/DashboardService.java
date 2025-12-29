@@ -1,31 +1,20 @@
 package com.greentrack.greentrack_api.service;
 
-import com.greentrack.greentrack_api.dto.DashboardResponseDTO;
-import com.greentrack.greentrack_api.dto.device.DeviceDTO;
+import com.greentrack.greentrack_api.dto.dashboard.DashboardResponseDTO;
 import com.greentrack.greentrack_api.entity.DeviceEntity;
 import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
-import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
 import com.greentrack.greentrack_api.entity.LoanEntity;
 import com.greentrack.greentrack_api.entity.LoanStatusEnum;
-import com.greentrack.greentrack_api.exception.InvalidInputException;
-import com.greentrack.greentrack_api.mapper.DeviceMapper;
 import com.greentrack.greentrack_api.repository.DeviceRepository;
 import com.greentrack.greentrack_api.repository.LoanRepository;
 import com.greentrack.greentrack_api.repository.UserRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class DashboardService {
@@ -46,33 +35,47 @@ public class DashboardService {
         this.loanRepository = loanRepository;
     }
 
+    @Transactional(readOnly = true)
     public DashboardResponseDTO getDashboard() {
         List<DeviceEntity> allDevices = deviceRepository.findAll();
         List<LoanEntity> allLoans = loanRepository.findAll();
         long totalUsers = userRepository.count();
 
+        LOG.debug(
+            "Datos recuperados de BD -> Usuarios: {}, Dispositivos: {}, Préstamos: {}",
+            totalUsers,
+            allDevices.size(),
+            allLoans.size()
+        );
         long availableDevices = allDevices.stream()
-        .filter(device -> DeviceStatusEnum.DISPONIBLE.equals(device.getDeviceStatus()))
+        .filter(device -> DeviceStatusEnum.DISPONIBLE.equals(device.getStatus()))
         .count();
 
         long borrowedDevices = allDevices.stream()
-        .filter(device -> DeviceStatusEnum.PRESTADO.equals(device.getDeviceStatus()))
+        .filter(device -> DeviceStatusEnum.PRESTADO.equals(device.getStatus()))
         .count();
 
         long activeLoans = allLoans.stream()
-        .filter(loan -> LoanStatusEnum.ACTIVO.equals(loan.getLoanStatus()))
+        .filter(loan -> LoanStatusEnum.ACTIVO.equals(loan.getStatus()))
         .count();
 
         long returnedLoans = allLoans.stream()
-        .filter(loan -> LoanStatusEnum.DEVUELTO.equals(loan.getLoanStatus()))
+        .filter(loan -> LoanStatusEnum.DEVUELTO.equals(loan.getStatus()))
         .count();
 
+        LOG.info(
+            "Métricas calculadas -> Dispositivos (Disp/Prest): {}/{}, Préstamos (Act/Dev): {}/{}", 
+            availableDevices,
+            borrowedDevices,
+            activeLoans,
+            returnedLoans
+        );
         return DashboardResponseDTO.builder()
         .users(DashboardResponseDTO.UserStats.builder()
             .total(totalUsers)
             .build())
         .devices(DashboardResponseDTO.DeviceStats.builder()
-            .total((long) allDevices.size()) // Size de la lista es el total
+            .total((long) allDevices.size())
             .available(availableDevices)
             .borrowed(borrowedDevices)
             .build())

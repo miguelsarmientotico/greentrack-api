@@ -1,12 +1,12 @@
 package com.greentrack.greentrack_api.controller;
 
-import com.greentrack.greentrack_api.dto.AuthDTO;
 import com.greentrack.greentrack_api.dto.OnCreate;
-import com.greentrack.greentrack_api.dto.UserDTO;
-import com.greentrack.greentrack_api.dto.UserResponseDTO;
+import com.greentrack.greentrack_api.dto.auth.AuthDTO;
+import com.greentrack.greentrack_api.dto.user.UserDTO;
+import com.greentrack.greentrack_api.dto.user.UserResponseDTO;
 import com.greentrack.greentrack_api.entity.UserEntity;
 import com.greentrack.greentrack_api.repository.UserRepository;
-import com.greentrack.greentrack_api.service.JwtService;
+import com.greentrack.greentrack_api.security.jwt.JwtService;
 import com.greentrack.greentrack_api.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,21 +60,26 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthDTO authDTO) {
-        LOG.info("Intento de logeo: {}/{}", authDTO.getUsername(), authDTO.getPassword());
+        LOG.info("Intento de autenticación para el usuario: {}", authDTO.getUsername());
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(authDTO.getUsername(), authDTO.getPassword())
         );
         if (authentication.isAuthenticated()) {
             UserEntity user = userRepository.findByUsername(authDTO.getUsername())
-            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado a pesar de autenticarse"));
+            .orElseThrow(() -> {
+                LOG.error("Inconsistencia grave: Usuario '{}' autenticado pero no encontrado en BD.", authDTO.getUsername());
+                return new UsernameNotFoundException("Usuario no encontrado");
+            });
             String token = jwtService.generateToken(
                 authDTO.getUsername(),
                 user.getRole().name()
             );
+            LOG.info("✅ Login exitoso para usuario: {} | Rol: {}", authDTO.getUsername(), user.getRole());
             return ResponseEntity.ok(Map.of(
                 "accessToken", token
             ));
         } else {
+            LOG.warn("⛔ Fallo de autenticación para usuario: {}. Motivo: Credenciales inválidas.", authDTO.getUsername());
             throw new UsernameNotFoundException("Invalid user request!");
         }
     }
@@ -89,7 +94,9 @@ public class AuthController {
     })
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> register(@Validated(OnCreate.class) @RequestBody UserDTO userDTO) {
+        LOG.info("Solicitud de registro para nuevo usuario: {} | Email: {}", userDTO.getUsername(), userDTO.getEmail());
         UserResponseDTO createdUser = userService.createUser(userDTO);
+        LOG.debug("Respuesta de registro enviada para usuario ID: {}", createdUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 }

@@ -1,6 +1,6 @@
 package com.greentrack.greentrack_api.controller;
 
-import com.greentrack.greentrack_api.dto.DashboardResponseDTO;
+import com.greentrack.greentrack_api.dto.dashboard.DashboardResponseDTO;
 import com.greentrack.greentrack_api.service.DashboardService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,8 +37,11 @@ public class DashboardController {
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
-    public ResponseEntity<DashboardResponseDTO> getDashboard() {
+    public ResponseEntity<DashboardResponseDTO> getDashboard(Authentication authentication) {
+        String currentUsername = authentication.getName();
+        LOG.info("Solicitud de Dashboard iniciada por el usuario: {}", currentUsername);
         DashboardResponseDTO dashboards = dashboardService.getDashboard();
+        LOG.info("Dashboard generado exitosamente para '{}'.", currentUsername);
         return ResponseEntity.ok(dashboards);
     }
 }

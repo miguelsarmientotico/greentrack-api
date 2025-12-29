@@ -1,4 +1,4 @@
-package com.greentrack.greentrack_api.service;
+package com.greentrack.greentrack_api.security;
 
 import com.greentrack.greentrack_api.entity.UserEntity;
 
@@ -18,7 +18,7 @@ public class UserEntityDetails implements UserDetails {
     public UserEntityDetails(UserEntity userEntity) {
         this.username = userEntity.getUsername();
         this.password = userEntity.getPassword();
-        this.authorities = List.of(new SimpleGrantedAuthority(userEntity.getRole().name()));
+        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name()));
     }
 
     @Override
