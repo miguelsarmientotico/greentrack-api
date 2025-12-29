@@ -31,6 +31,7 @@ public interface UserMapper {
       
     List<UserResponseDTO> entityListToResponseDtoList(List<UserEntity> entities);
 
+    @Mapping(target = "id", ignore = true)
     UserResponseDTO dtoToResponseDto(UserDTO dto);
     
     List<UserResponseDTO> dtoListToResponseDtoList(List<UserDTO> dtos);
