@@ -1,28 +1,24 @@
-# --- ETAPA 1: Builder (Compilación con Gradle) ---
-FROM amazoncorretto:21-alpine-jdk AS builder
-WORKDIR /app
+ FROM amazoncorretto:21-alpine-jdk AS builder
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+WORKDIR /extracted
 
-RUN chmod +x gradlew
+ADD ./build/libs/*.jar app.jar
 
-COPY src src
+RUN java -Djarmode=layertools -jar app.jar extract
 
-RUN ./gradlew clean build --refresh-dependencies -x test --no-daemon
-
-RUN java -Djarmode=layertools -jar build/libs/*.jar extract --destination /extracted
 
 FROM amazoncorretto:21-alpine-jdk
+
 WORKDIR /application
 
 COPY --from=builder /extracted/dependencies/ ./
+
 COPY --from=builder /extracted/spring-boot-loader/ ./
+
 COPY --from=builder /extracted/snapshot-dependencies/ ./
+
 COPY --from=builder /extracted/application/ ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"] 
