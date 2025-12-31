@@ -43,4 +43,3 @@ public class HttpErrorInfo {
     return message;
   }
 }
-

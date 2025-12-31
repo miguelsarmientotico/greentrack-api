@@ -40,4 +40,3 @@ public enum RoleEnum implements GrantedAuthority {
     public static final String USER = "ROLE_USER";
   }
 }
-

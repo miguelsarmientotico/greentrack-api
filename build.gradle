@@ -2,6 +2,9 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.diffplug.spotless' version '8.1.0'
+	id 'com.github.spotbugs' version '6.4.8'
+	id 'org.sonarqube' version '7.2.0.6526'
 }
 
 group = 'com.greentrack'
@@ -12,6 +15,18 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+}
+
+spotbugs {
+  toolVersion = '4.9.8'
+}
+
+spotless {
+    java {
+        googleJavaFormat() 
+        importOrder() 
+        removeUnusedImports() 
+    }
 }
 
 ext {
@@ -29,6 +44,7 @@ repositories {
 }
 
 dependencies {
+	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'

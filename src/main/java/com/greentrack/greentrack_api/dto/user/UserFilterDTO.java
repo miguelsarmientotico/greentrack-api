@@ -10,5 +10,4 @@ public record UserFilterDTO(
     String email,
     UserStatusEnum status,
     RoleEnum role,
-    String globalSearch
-) {}
+    String globalSearch) {}

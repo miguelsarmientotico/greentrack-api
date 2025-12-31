@@ -15,4 +15,3 @@ public class InvalidInputException extends RuntimeException {
     super(cause);
   }
 }
-

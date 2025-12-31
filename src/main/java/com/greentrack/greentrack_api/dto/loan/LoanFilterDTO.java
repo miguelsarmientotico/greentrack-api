@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public record LoanFilterDTO(
     String id,
-    
+
     // Employee Params
     String employeeId,
     String employeeUsername,
@@ -17,14 +17,14 @@ public record LoanFilterDTO(
     String employeeEmail,
     UserStatusEnum employeeStatus,
     RoleEnum employeeRole,
-    
+
     // Device Params
     String deviceId,
     String deviceName,
     String deviceBrand,
     DeviceTypeEnum deviceType,
     DeviceStatusEnum deviceStatus,
-    
+
     // Loan Params
     LocalDateTime issuedAt,
     LocalDateTime startIssuedAt,
@@ -33,6 +33,4 @@ public record LoanFilterDTO(
     LocalDateTime startReturnedAt,
     LocalDateTime endReturnedAt,
     LoanStatusEnum loanStatus,
-    
-    String globalSearch
-) {}
+    String globalSearch) {}

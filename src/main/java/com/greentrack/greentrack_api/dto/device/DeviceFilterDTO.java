@@ -9,5 +9,4 @@ public record DeviceFilterDTO(
     String brand,
     DeviceTypeEnum type,
     DeviceStatusEnum status,
-    String globalSearch
-) {}
+    String globalSearch) {}

@@ -1,36 +1,34 @@
-package com.greentrack.greentrack_api.dto.loan; 
+package com.greentrack.greentrack_api.dto.loan;
 
-import com.greentrack.greentrack_api.entity.LoanStatusEnum;
-import com.greentrack.greentrack_api.entity.DeviceStatusEnum;
 import com.greentrack.greentrack_api.entity.DeviceTypeEnum;
-import lombok.Data;
-
+import com.greentrack.greentrack_api.entity.LoanStatusEnum;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 public class LoanResponseDTO {
 
+  private UUID id;
+  private LocalDateTime issuedAt;
+  private LocalDateTime returnedAt;
+  private LoanStatusEnum status;
+  private EmployeeSummaryDTO employee;
+  private DeviceSummaryDTO device;
+
+  @Data
+  public static class EmployeeSummaryDTO {
     private UUID id;
-    private LocalDateTime issuedAt;
-    private LocalDateTime returnedAt;
-    private LoanStatusEnum status;
-    private EmployeeSummaryDTO employee;
-    private DeviceSummaryDTO device;
+    private String username;
+    private String fullName;
+    private String email;
+  }
 
-    @Data
-    public static class EmployeeSummaryDTO {
-        private UUID id;
-        private String username; 
-        private String fullName; 
-        private String email;
-    }
-
-    @Data
-    public static class DeviceSummaryDTO {
-        private UUID id;
-        private String name;
-        private String brand;
-        private DeviceTypeEnum type;
-    }
+  @Data
+  public static class DeviceSummaryDTO {
+    private UUID id;
+    private String name;
+    private String brand;
+    private DeviceTypeEnum type;
+  }
 }
