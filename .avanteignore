@@ -1,0 +1,35 @@
+# --- Archivos de sistema y logs ---
+.DS_Store
+node_modules/
+.git/
+.idea/
+.vscode/
+.avante/
+
+# --- Java & Gradle (LO IMPORTANTE) ---
+.gradle/
+build/
+bin/
+out/
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# --- Archivos grandes específicos ---
+package-lock.json
+yarn.lock
+gradle-wrapper.jar
+gradlew
+gradlew.bat
+
+# --- Eclipse / STS ---
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+src/
